@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers'
-import { jwtValidate, fetchCurrentUser } from '@/lib/api/wordpress/client'
+import { getAuthProvider } from './factory'
 
-const TOKEN_COOKIE = 'wp_auth_token'
+const TOKEN_COOKIE = 'auth_token'
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
@@ -37,21 +37,16 @@ export async function getValidatedSession(): Promise<SessionUser | null> {
   const token = await getAuthToken()
   if (!token) return null
 
-  const isValid = await jwtValidate(token)
+  const auth = getAuthProvider()
+  const isValid = await auth.validate(token)
   if (!isValid) {
     await clearAuthToken()
     return null
   }
 
   try {
-    const user = await fetchCurrentUser(token)
-    return {
-      token,
-      id: user.id,
-      name: user.name,
-      email: (user as unknown as { email?: string }).email ?? '',
-      avatarUrl: user.avatar_urls?.['96'] ?? null,
-    }
+    const user = await auth.getCurrentUser(token)
+    return { token, ...user }
   } catch {
     return { token, id: 0, name: '', email: '', avatarUrl: null }
   }

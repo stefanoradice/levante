@@ -1,7 +1,7 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-import { jwtLogin, fetchRegister } from '@/lib/api/wordpress/client'
+import { getAuthProvider } from './factory'
 import { setAuthToken, clearAuthToken } from './session'
 
 export async function loginAction(
@@ -16,7 +16,7 @@ export async function loginAction(
   }
 
   try {
-    const { token } = await jwtLogin(username, password)
+    const { token } = await getAuthProvider().login(username, password)
     await setAuthToken(token)
   } catch {
     return { error: 'Credenziali non valide. Riprova.' }
@@ -43,8 +43,7 @@ export async function registerAction(
   }
 
   try {
-    await fetchRegister({ username, email, password })
-    const { token } = await jwtLogin(username, password)
+    const { token } = await getAuthProvider().register(username, email, password)
     await setAuthToken(token)
   } catch (err) {
     return { error: err instanceof Error ? err.message : 'Registrazione fallita.' }
