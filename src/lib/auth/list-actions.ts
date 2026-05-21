@@ -20,7 +20,7 @@ export async function createListAction(
     const isPublic = formData.get('isPublic') === 'true'
     if (!name?.trim()) return { error: 'Il nome è obbligatorio.' }
     await getUserDataRepository().createList(token, { name: name.trim(), isPublic })
-    revalidatePath('/dashboard')
+    revalidatePath('/dashboard', 'layout')
     return {}
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Errore.' }
@@ -31,7 +31,7 @@ export async function deleteListAction(listId: string): Promise<{ error?: string
   try {
     const token = await getTokenOrThrow()
     await getUserDataRepository().deleteList(token, listId)
-    revalidatePath('/dashboard')
+    revalidatePath('/dashboard', 'layout')
     return {}
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Errore.' }
@@ -45,7 +45,7 @@ export async function updateListAction(
   try {
     const token = await getTokenOrThrow()
     await getUserDataRepository().updateList(token, listId, data)
-    revalidatePath('/dashboard')
+    revalidatePath('/dashboard', 'layout')
     return {}
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Errore.' }
@@ -65,6 +65,7 @@ export async function togglePostInListAction(
     } else {
       await repo.removeFromList(token, listId, postId)
     }
+    revalidatePath('/dashboard', 'layout')
     return {}
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Errore.' }
