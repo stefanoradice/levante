@@ -78,6 +78,7 @@ export interface PostQuery {
   authorId?: number
   search?: string
   sticky?: boolean
+  relatedPostId?: number
 }
 
 export interface Page {

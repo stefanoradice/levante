@@ -141,6 +141,13 @@ export async function fetchComments(postId: number): Promise<WpComment[]> {
   )
 }
 
+export async function fetchRelatedPosts(postId: number) : Promise<WpPost[]> {
+  return wpFetch<WpPost[]>(
+    `/posts?relatedPostId=${postId}`,
+    {cache: 'no-store'}
+  )
+}
+
 export async function submitComment(data: {
   postId: number
   parentId?: number

@@ -6,11 +6,13 @@ import { getPostRepository } from '@/lib/repositories/factory'
 import { HeroSlider } from '@/components/home/HeroSlider'
 import { PostCard } from '@/components/blog/PostCard'
 import { BackendError } from '@/components/ui/BackendError'
+import { PostsSkeleton } from '@/components/ui/PostKeleton'
 
 async function FeaturedSlider() {
   try {
     const repo = getPostRepository()
     const featured = await repo.getFeaturedPosts()
+    // eslint-disable-next-line react-hooks/error-boundaries
     return <HeroSlider posts={featured} />
   } catch {
     return <BackendError inline />
@@ -56,26 +58,6 @@ function SliderSkeleton() {
       className="w-full rounded-2xl bg-background-secondary animate-pulse"
       style={{ minHeight: '480px' }}
     />
-  )
-}
-
-function PostsSkeleton() {
-  return (
-    <section>
-      <div className="h-8 w-48 bg-background-secondary rounded animate-pulse mb-8" />
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="rounded-xl border border-card-border bg-card overflow-hidden">
-            <div className="aspect-video bg-background-secondary animate-pulse" />
-            <div className="p-5 space-y-3">
-              <div className="h-4 w-20 bg-background-secondary rounded animate-pulse" />
-              <div className="h-5 bg-background-secondary rounded animate-pulse" />
-              <div className="h-4 bg-background-secondary rounded animate-pulse w-3/4" />
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
   )
 }
 

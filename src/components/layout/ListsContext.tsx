@@ -38,6 +38,7 @@ export function ListsProvider({
     }
   }, [isLoggedIn])
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load() }, [load])
 
   return (

@@ -1,10 +1,15 @@
-import { unstable_cache } from 'next/cache'
-import type { IPostRepository } from '../interfaces'
-import type { Post, PaginatedResult, PostQuery } from '@/types'
-import { fetchPosts, fetchPostBySlug, fetchPostsByIds } from '@/lib/api/wordpress/client'
-import { mapPost } from '@/lib/api/wordpress/mappers'
+import { unstable_cache } from "next/cache";
+import type { IPostRepository } from "../interfaces";
+import type { Post, PaginatedResult, PostQuery } from "@/types";
+import {
+  fetchPosts,
+  fetchPostBySlug,
+  fetchPostsByIds,
+  fetchRelatedPosts,
+} from "@/lib/api/wordpress/client";
+import { mapPost } from "@/lib/api/wordpress/mappers";
 
-const REVALIDATE = 300 // 5 minutes
+const REVALIDATE = 300; // 5 minutes
 
 const cachedGetPosts = unstable_cache(
   async (query: PostQuery): Promise<PaginatedResult<Post>> => {
@@ -15,44 +20,62 @@ const cachedGetPosts = unstable_cache(
       tagId: query.tagId,
       authorId: query.authorId,
       search: query.search,
-    })
+    });
     return {
       items: posts.map(mapPost),
       total,
       totalPages,
       currentPage: query.page ?? 1,
       perPage: query.perPage ?? 10,
-    }
+    };
   },
-  ['posts'],
-  { tags: ['posts'], revalidate: REVALIDATE },
-)
+  ["posts"],
+  { tags: ["posts"], revalidate: REVALIDATE },
+);
 
 const cachedGetPostBySlug = unstable_cache(
   async (slug: string): Promise<Post | null> => {
-    const wp = await fetchPostBySlug(slug)
-    return wp ? mapPost(wp) : null
+    const wp = await fetchPostBySlug(slug);
+    return wp ? mapPost(wp) : null;
   },
-  ['post-by-slug'],
-  { tags: ['posts'], revalidate: REVALIDATE },
-)
+  ["post-by-slug"],
+  { tags: ["posts"], revalidate: REVALIDATE },
+);
 
 const cachedGetFeaturedPosts = unstable_cache(
   async (): Promise<Post[]> => {
-    const { posts } = await fetchPosts({ sticky: true, perPage: 8 })
-    return posts.map(mapPost)
+    const { posts } = await fetchPosts({ sticky: true, perPage: 8 });
+    return posts.map(mapPost);
   },
-  ['featured-posts'],
-  { tags: ['posts', 'featured-posts'], revalidate: REVALIDATE },
-)
+  ["featured-posts"],
+  { tags: ["posts", "featured-posts"], revalidate: REVALIDATE },
+);
+
+const cachedGetRelatedPosts = unstable_cache(
+  async (postId: number): Promise<Post[]> => {
+    const posts = await fetchRelatedPosts(postId);
+    return posts.map(mapPost);
+  },
+  ["related-posts"],
+  { tags: ["posts", "related-posts"], revalidate: REVALIDATE },
+);
 
 export class WordPressPostRepository implements IPostRepository {
-  getPosts(query: PostQuery) { return cachedGetPosts(query) }
-  getPostBySlug(slug: string) { return cachedGetPostBySlug(slug) }
-  getFeaturedPosts() { return cachedGetFeaturedPosts() }
+  getPosts(query: PostQuery) {
+    return cachedGetPosts(query);
+  }
+  getPostBySlug(slug: string) {
+    return cachedGetPostBySlug(slug);
+  }
+  getFeaturedPosts() {
+    return cachedGetFeaturedPosts();
+  }
+  getRelatedPosts(postId: number): Promise<Post[]> {
+    return cachedGetRelatedPosts(postId);
+  }
   async getPostsByIds(ids: number[]): Promise<Post[]> {
-    if (ids.length === 0) return []
-    const posts = await fetchPostsByIds(ids)
-    return posts.map(mapPost)
+    if (ids.length === 0) return [];
+    const posts = await fetchPostsByIds(ids);
+    return posts.map(mapPost);
   }
 }

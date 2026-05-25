@@ -33,7 +33,7 @@ export function BookmarkButton({ postId }: { postId: number }) {
           body: JSON.stringify({ postId, add: !isBookmarked }),
         });
         if (!res.ok) setBookmarks(bookmarks);
-      } catch (error) {
+      } catch {
         setBookmarks(bookmarks);
       }
     });
@@ -49,7 +49,7 @@ export function BookmarkButton({ postId }: { postId: number }) {
       <Heart
         size={16}
         fill={isBookmarked ? "currentColor" : "none"}
-        className="text-foreground-muted flex-shrink-0"
+        className="text-foreground-muted shrink-0"
       />
     </button>
   );

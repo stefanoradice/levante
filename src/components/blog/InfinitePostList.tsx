@@ -32,27 +32,9 @@ export function InfinitePostList({
   const hasMore = page < totalPages
 
   useEffect(() => {
-    setPosts(initialPosts)
+    setPosts(initialPosts) // eslint-disable-line react-hooks/set-state-in-effect
     setPage(1)
   }, [initialPosts, categoryId, tagId, search])
-
-  useEffect(() => {
-    if (!hasMore || loading) return
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          loadMore()
-        }
-      },
-      { rootMargin: '200px' },
-    )
-
-    const el = sentinelRef.current
-    if (el) observer.observe(el)
-    return () => { if (el) observer.unobserve(el) }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasMore, loading, page])
 
   async function loadMore() {
     if (loading || !hasMore) return
@@ -77,6 +59,24 @@ export function InfinitePostList({
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (!hasMore || loading) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMore()
+        }
+      },
+      { rootMargin: '200px' },
+    )
+
+    const el = sentinelRef.current
+    if (el) observer.observe(el)
+    return () => { if (el) observer.unobserve(el) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasMore, loading, page])
 
   return (
     <>

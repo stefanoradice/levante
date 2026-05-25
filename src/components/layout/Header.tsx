@@ -1,17 +1,19 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import Image from 'next/image'
-import { Suspense, useState } from 'react'
-import { motion } from 'framer-motion'
-import { Menu, X, BookOpen, User } from 'lucide-react'
-import type { MenuItem } from '@/types'
-import { ThemeToggle } from './ThemeToggle'
-import { NavLinks, MobileNavLinks } from './NavLinks'
+import Link from "next/link";
+import Image from "next/image";
+import { Suspense, useCallback, useState } from "react";
+import { motion } from "framer-motion";
+import { Menu, X, BookOpen, User } from "lucide-react";
+import type { MenuItem } from "@/types";
+import { ThemeToggle } from "./ThemeToggle";
+import { NavLinks, MobileNavLinks } from "./NavLinks";
+import { SearchInput } from "../blog/SearchInput";
+import { useRouter } from "next/navigation";
 
 interface HeaderProps {
-  menuItems: MenuItem[]
-  user: { name: string; avatarUrl: string | null } | null
+  menuItems: MenuItem[];
+  user: { name: string; avatarUrl: string | null } | null;
 }
 
 function NavLinksFallback({ items }: { items: MenuItem[] }) {
@@ -27,18 +29,27 @@ function NavLinksFallback({ items }: { items: MenuItem[] }) {
         </Link>
       ))}
     </>
-  )
+  );
 }
 
 export function Header({ menuItems, user }: HeaderProps) {
-  const [mobileOpen, setMobileOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const router = useRouter();
+  const handleSearch = useCallback((value: string) => {
+    if (value) router.push(`/blog?cerca=${value}`);
+    else router.push('/blog');
+  }, [router]);
 
   return (
     <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-sm border-b border-border">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 font-display font-bold text-xl text-foreground">
+          <Link
+            href="/"
+            className="flex items-center gap-2 font-display font-bold text-xl text-foreground"
+          >
             <BookOpen size={22} className="text-accent" />
             <span>Levante</span>
           </Link>
@@ -52,6 +63,7 @@ export function Header({ menuItems, user }: HeaderProps) {
 
           {/* Actions */}
           <div className="flex items-center gap-2">
+            <SearchInput onSearch={handleSearch} />
             <ThemeToggle />
             {user ? (
               <Link
@@ -60,13 +72,21 @@ export function Header({ menuItems, user }: HeaderProps) {
                   hover:bg-background-secondary transition-colors"
               >
                 {user.avatarUrl ? (
-                  <Image src={user.avatarUrl} alt={user.name} width={28} height={28} className="rounded-full" />
+                  <Image
+                    src={user.avatarUrl}
+                    alt={user.name}
+                    width={28}
+                    height={28}
+                    className="rounded-full"
+                  />
                 ) : (
                   <div className="w-7 h-7 rounded-full bg-accent/20 flex items-center justify-center">
                     <User size={14} className="text-accent" />
                   </div>
                 )}
-                <span className="text-sm font-medium text-foreground hidden lg:block">{user.name}</span>
+                <span className="text-sm font-medium text-foreground hidden lg:block">
+                  {user.name}
+                </span>
               </Link>
             ) : (
               <Link
@@ -101,7 +121,10 @@ export function Header({ menuItems, user }: HeaderProps) {
         >
           <div className="max-w-6xl mx-auto px-4 py-4 flex flex-col gap-1">
             <Suspense fallback={<NavLinksFallback items={menuItems} />}>
-              <MobileNavLinks items={menuItems} onClose={() => setMobileOpen(false)} />
+              <MobileNavLinks
+                items={menuItems}
+                onClose={() => setMobileOpen(false)}
+              />
             </Suspense>
             {user ? (
               <Link
@@ -126,5 +149,5 @@ export function Header({ menuItems, user }: HeaderProps) {
         </motion.div>
       )}
     </header>
-  )
+  );
 }

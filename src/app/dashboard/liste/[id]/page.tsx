@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, Globe, Lock, BookMarked } from "lucide-react";
-import { getValidatedSession, SessionUser } from "@/lib/auth/session";
+import { getValidatedSession } from "@/lib/auth/session";
 import {
   getUserDataRepository,
   getPostRepository,

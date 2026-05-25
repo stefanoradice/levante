@@ -26,6 +26,7 @@ export function HistoryProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const stored = localStorage.getItem("history");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHistory(stored ? JSON.parse(stored) : []);
   }, []);
 

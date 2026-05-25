@@ -10,6 +10,8 @@ import { HistoryTracker } from "@/components/blog/HistoryTracker";
 import { PostContent } from "@/components/blog/PostContent";
 import { CommentSection } from "@/components/blog/comments/CommentSection";
 import { Suspense } from "react";
+import { RelatedPosts } from "@/components/blog/RelatedPosts";
+import { PostsSkeleton } from "@/components/ui/PostKeleton";
 
 interface PostPageProps {
   params: Promise<{ slug: string }>;
@@ -84,6 +86,9 @@ export default async function PostPage({ params }: PostPageProps) {
       <PostContent post={post} />
       <Suspense fallback={<CommentsSkeleton />}>
         <PostComments postId={post.id} />
+      </Suspense>
+      <Suspense fallback={<PostsSkeleton />}>
+        <RelatedPosts post={post} />
       </Suspense>
     </article>
   );
